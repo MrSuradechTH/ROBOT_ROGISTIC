@@ -29,18 +29,18 @@ void robot_forward(uint8_t analog_a,uint8_t analog_b) {
   robot_motor(1,0,1,0,analog_a,analog_b);
 }
 
-void robot_backward() {
-  
+void robot_backward(uint8_t analog_a,uint8_t analog_b) {
+  robot_motor(0,1,0,1,analog_a,analog_b);
 }
 
-void robot_left() {
-  
+void robot_right(uint8_t analog_a,uint8_t analog_b) {
+  robot_motor(1,0,0,1,analog_a,analog_b);
 }
 
-void robot_right() {
-  
+void robot_left(uint8_t analog_a,uint8_t analog_b) {
+  robot_motor(0,1,1,0,analog_a,analog_b);
 }
 
-void robot_opposite() {
-  
+void robot_opposite(uint8_t analog_a,uint8_t analog_b) {
+  robot_motor(1,0,0,1,analog_a,analog_b);
 }
