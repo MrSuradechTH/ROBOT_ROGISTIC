@@ -5,8 +5,10 @@ uint8_t motor_speed[] = {255,255,255,255,255,255};
 
 //line_sensor
 uint8_t line_sensor[] = {14,15,16,17,18,19,22};
-uint8_t default_line_status = 0;
-String line_status;
+String line_status,line_status_old;
+
+//other (not yet used)
+//String direction_controling = ""; //forward,backward,right,left,opposite
 
 //robot
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,uint8_t analog_a,uint8_t analog_b) {
@@ -57,13 +59,25 @@ void arm_down(uint8_t analog_a,uint8_t analog_b) {
 }
 
 void line_check() {
+  line_status_old = line_status;
   line_status = "";
   for(uint8_t c = 0;c < 7;c++) {
     line_status += String(digitalRead(line_sensor[c]));
   }
   Serial.println(line_status);
-  return line_status;
 }
+
+//รอปรับแต่ง (not yet used)
+//void reject_rejoin() {
+//  line_check();
+//  while (line_status_old == line_status) {
+//    line_check();
+//    if (
+//  }
+//  while (line_status != "000" || line_status != "000" || line_status != "000") {
+//      
+//    }
+//}
 
 void setup() {
   Serial.begin(9600);
