@@ -7,8 +7,9 @@ uint8_t motor_speed[] = {255,255,255,255,255,255};
 uint8_t line_sensor[] = {14,15,16,17,18,19,22};
 String line_status,line_status_old;
 
-//other (not yet used)
-//String direction_controling = ""; //forward,backward,right,left,opposite
+//other
+uint8_t stack;
+//String direction_controling = ""; //forward,backward,right,left,opposite (not yet used)
 
 //robot
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,uint8_t analog_a,uint8_t analog_b) {
@@ -64,7 +65,7 @@ void line_check() {
   for(uint8_t c = 0;c < 7;c++) {
     line_status += String(digitalRead(line_sensor[c]));
   }
-  Serial.println(line_status);
+  //Serial.println(line_status);
 }
 
 //รอปรับแต่ง (not yet used)
@@ -78,6 +79,15 @@ void line_check() {
 //      
 //    }
 //}
+
+void get_stack(uint8_t stack_count) {
+    if (line_status == "1000001" || line_status == "0000001" || line_status == "1000000") {
+      stack += 1;
+    }
+    if (stack > stack_count) {
+      stack = 0;
+    }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -94,6 +104,9 @@ void setup() {
 }
 
 void loop() {
+  while(true) {
+    get_stack(8);
+  }
 //debug
 //  line_check();
 //  delay(100);
@@ -117,3 +130,11 @@ void loop() {
 //  arm_up(motor_speed[2],motor_speed[3]);         //เเขนกลขึ้น
 //  arm_down(motor_speed[2],motor_speed[3]);       //แขนกลลง
 }
+
+
+
+
+
+
+
+//stack ตามจำนวนเส้นตัด line sensor ตัวแรกและตัวสุดท้าย
