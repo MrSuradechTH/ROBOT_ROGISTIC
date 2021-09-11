@@ -2,8 +2,8 @@
 const uint8_t motor_row = 4,motor_col = 3;
 uint8_t motor[motor_row][motor_col] = {{32, 33, 4},{34, 35, 6},{36, 37, 8},{48, 49, 10}}; //ล้อซ้าย,ล้อขวา,แขนซ้าย,แขนขวา (มองจากด้านหลัง)
 const uint8_t motor_speed_row = 5,motor_speed_col = 2;
-uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{255,255},{255,255},{0,255},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
-uint8_t motor_delay[] = {0,0,1000,1000,0}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,หยุด
+uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{255,255},{255,255},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
+uint8_t motor_delay[] = {0,0,1000,1000,2000,0}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด
 
 //line_sensor
 uint8_t line_sensor[] = {14,15,16,17,18,19,22};
@@ -91,12 +91,15 @@ void line_check() {
 //}
 
 void get_stack(uint8_t stack_count) {
+  while(true) {
     if (line_status == "1000001" || line_status == "0000001" || line_status == "1000000") {
       stack += 1;
     }
     if (stack > stack_count) {
       stack = 0;
+      break;
     }
+  }
 }
 
 void setup() {
@@ -114,9 +117,26 @@ void setup() {
 }
 
 void loop() {
-  while(true) {
-    get_stack(8);
-  }
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 //debug
 //  line_check();
 //  delay(100);
@@ -132,11 +152,12 @@ void loop() {
 //  }
 
 //control
-//  robot_forward(motor_speed[0],motor_speed[1]);  //เดินหน้า
-//  robot_backward(motor_speed[0],motor_speed[1]); //ถอยหลัง
-//  robot_right(motor_speed[0],motor_speed[1]);    //เลี้ยวขวา
-//  robot_left(motor_speed[0],motor_speed[1]);     //เลี้ยวซ้าย
-//  robot_opposite(motor_speed[0],motor_speed[1]); //กลับหลัง
+//  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);  //เดินหน้า
+//  robot_backward(motor_speed[1][0],motor_speed[1][1],motor_delay[1]); //ถอยหลัง
+//  robot_right(motor_speed[2][0],motor_speed[2][1],motor_delay[2]);    //เลี้ยวขวา
+//  robot_left(motor_speed[3][0],motor_speed[3][1],motor_delay[3]);     //เลี้ยวซ้าย
+//  robot_opposite(motor_speed[4][0],motor_speed[4][1],motor_delay[4]); //กลับหลัง
+//  robot_stop(motor_speed[5][0],motor_speed[5][1],motor_delay[5]);     //หยุด
 //  arm_up(motor_speed[2],motor_speed[3]);         //เเขนกลขึ้น
 //  arm_down(motor_speed[2],motor_speed[3]);       //แขนกลลง
 }
