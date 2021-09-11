@@ -28,9 +28,9 @@ void line_check() {
   //line_status_old = line_status;
   line_status = "";
   for(uint8_t c = 0;c < 7;c++) {
-    line_status += String(digitalRead(line_sensor[c]));
+    line_status += String(!digitalRead(line_sensor[c]));
   }
-  //Serial.println(line_status);
+  Serial.println(line_status);
 }
 
 void balance() {
@@ -66,4 +66,6 @@ void setup() {
 
 void loop() {
   robot_forward(motor_speed[0][0],motor_speed[0][1],0);
+  balance();
+  delay(1000);
 }
