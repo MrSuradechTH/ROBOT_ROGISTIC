@@ -34,6 +34,7 @@ void line_check() {
 }
 
 void balance() {
+  line_check();
   if (line_status == "0100000" || line_status == "0101000" || line_status == "0110000" || line_status == "0110000") {
     motor_speed[0][0] = motor_speed[0][0] - speed_down[0];
   }else if (line_status == "0010000" || line_status == "0010000"){
