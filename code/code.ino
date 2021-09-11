@@ -11,7 +11,7 @@ uint8_t speed_down_list[] = {50,25};
 uint8_t speed_down[] = {speed_down_list[0],int((speed_down_list[0]+speed_down_list[1])/2),speed_down_list[1]};
 
 //line_sensor
-uint8_t line_sensor[] = {22,19,18,17,16,15,14};
+uint8_t line_sensor[] = {19,22,17,18,15,16,14};
 String line_status; //,line_status_old
 
 //other
