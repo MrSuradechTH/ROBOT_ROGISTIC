@@ -2,8 +2,13 @@
 const uint8_t motor_row = 4,motor_col = 3;
 uint8_t motor[motor_row][motor_col] = {{32, 33, 4},{34, 35, 6},{36, 37, 8},{48, 49, 10}}; //ล้อซ้าย,ล้อขวา,แขนซ้าย,แขนขวา (มองจากด้านหลัง)
 const uint8_t motor_speed_row = 5,motor_speed_col = 2;
-uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{255,255},{255,255},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
+uint8_t motor_speed_default = 255;
+uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{motor_speed_default,motor_speed_default},{motor_speed_default,motor_speed_default},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
 uint8_t motor_delay[] = {0,0,1000,1000,2000,0}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด
+
+//robot
+uint8_t speed_down_list[] = {50,25};
+uint8_t speed_down[] = {speed_down_list[0],int((speed_down_list[0]+speed_down_list[1])/2),speed_down_list[1])
 
 //line_sensor
 uint8_t line_sensor[] = {14,15,16,17,18,19,22};
@@ -90,10 +95,30 @@ void line_check() {
 //    }
 //}
 
+void balance() {
+  if (line_status == "0100000" || line_status == "0101000" || line_status == "0110000" || line_status == "0110000") {
+    motor_speed[0][0] = motor_speed[0][0] - speed_down[0];
+  }else if (line_status == "0010000" || line_status == "0010000"){
+    motor_speed[0][0] = motor_speed[0][0] - speed_down[1];
+  }else if (line_status == "0000010" || line_status == "0001010" || line_status == "0000110" || line_status == "0001110") {
+    motor_speed[0][1] = motor_speed[0][1] - speed_down[0];
+  }else if (line_status == "0000100" || line_status == "0001100"){
+    motor_speed[0][1] = motor_speed[0][1] - speed_down[1];
+  }else if (line_status == "0001000" || line_status == "0011100") {
+    motor_speed[0][0] = motor_speed_default;
+    motor_speed[0][1] = motor_speed_default;
+  }
+  analogWrite(motor[0][2], motor_speed[0][0]);
+  analogWrite(motor[1][2], motor_speed[0][1]);
+}
+
 void get_stack(uint8_t stack_count) {
   while(true) {
+    line_check();
     if (line_status == "1000001" || line_status == "0000001" || line_status == "1000000") {
       stack += 1;
+    }else {
+      balance();
     }
     if (stack > stack_count) {
       stack = 0;
@@ -117,25 +142,8 @@ void setup() {
 }
 
 void loop() {
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);
+  get_stack(1);
   
 //debug
 //  line_check();
@@ -169,3 +177,8 @@ void loop() {
 
 
 //stack ตามจำนวนเส้นตัด line sensor ตัวแรกและตัวสุดท้าย
+
+//0100000,0101000,0110000,0111000
+//0010000,0011000
+//0000010,0001010,0000110,0001110
+//0000100,0001100
