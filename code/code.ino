@@ -1,14 +1,14 @@
 //motor
 const uint8_t motor_row = 4,motor_col = 3;
 uint8_t motor[motor_row][motor_col] = {{32, 33, 4},{34, 35, 6},{36, 37, 8},{48, 49, 10}}; //ล้อซ้าย,ล้อขวา,แขนซ้าย,แขนขวา (มองจากด้านหลัง)
-const uint8_t motor_speed_row = 5,motor_speed_col = 2;
+const uint8_t motor_speed_row = 6,motor_speed_col = 2;
 uint8_t motor_speed_default = 255;
 uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{motor_speed_default,motor_speed_default},{motor_speed_default,motor_speed_default},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
 uint8_t motor_delay[] = {0,0,1000,1000,2000,0}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด
 
 //robot
 uint8_t speed_down_list[] = {50,25};
-uint8_t speed_down[] = {speed_down_list[0],int((speed_down_list[0]+speed_down_list[1])/2),speed_down_list[1])
+uint8_t speed_down[] = {speed_down_list[0],int((speed_down_list[0]+speed_down_list[1])/2),speed_down_list[1]};
 
 //line_sensor
 uint8_t line_sensor[] = {14,15,16,17,18,19,22};
