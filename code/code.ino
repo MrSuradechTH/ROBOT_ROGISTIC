@@ -78,9 +78,9 @@ void line_check() {
   //line_status_old = line_status;
   line_status = "";
   for(uint8_t c = 0;c < 7;c++) {
-    line_status += String(digitalRead(line_sensor[c]));
+    line_status += String(!digitalRead(line_sensor[c]));
   }
-  //Serial.println(line_status);
+  Serial.println(line_status);
 }
 
 //รอปรับแต่ง (not yet used)
@@ -142,8 +142,9 @@ void setup() {
 }
 
 void loop() {
-  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);
-  get_stack(1);
+//  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);
+//  get_stack(1);
+line_check();
   
 //debug
 //  line_check();
