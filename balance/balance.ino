@@ -2,7 +2,7 @@ uint8_t motor[2][3] = {{32, 33, 4},{34, 35, 6}};
 uint8_t motor_speed_default = 255;
 uint8_t motor_speed[1][2] = {{motor_speed_default,motor_speed_default}};
 
-uint8_t line_sensor[] = {14,15,16,17,18,19,22};
+uint8_t line_sensor[] = {22,19,18,17,16,15,14};
 String line_status; //,line_status_old
 
 uint8_t speed_down_list[] = {50,25};
