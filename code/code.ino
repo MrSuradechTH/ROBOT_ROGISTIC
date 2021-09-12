@@ -1,10 +1,15 @@
+//nesw_xy
+uint8_t x,y;
+uint8_t x_max = 8,y_max = 4;
+String compass[] = {"n","e","s","w"};
+int8_t compass_now = 0;
+
+//color
 #define S0 13
 #define S1 11
 #define S2 3
 #define S3 5
 #define OUT 9
-
-//color
 const uint8_t color_all = 4;
 uint8_t max_min = 15;
 uint8_t delay_color_read = 10;
@@ -39,6 +44,70 @@ String line_status; //,line_status_old
 //other
 uint8_t stack;
 //String direction_controling = ""; //forward,backward,right,left,opposite (not yet used)
+
+//nesw_xy
+void xy_to_xy(uint8_t xstart,uint8_t ystart,uint8_t xstop,uint8_t ystop) {
+  if (ystart != 1) {
+    if (ystart > 1) {
+      compass_to("s");
+      get_stack(ystart - 1);
+    }else if (ystart < 1) {
+      compass_to("n");
+      get_stack(1 - ystart);
+    }
+  }
+  if (xstart < xstop) {
+    compass_to("w");
+    get_stack(xstop - xstart);
+  }else if (xstart > xstop) {
+    compass_to("e");
+    get_stack(xstart - xstop);
+  }
+
+  if (ystart > ystop) {
+    compass_to("s");
+    get_stack(1 - ystop);
+  }else if (ystart < ystop) {
+    compass_to("n");
+    get_stack(ystop - 1);
+  }
+}
+
+void compass_to(String string_a) {
+  if (string_a == "n") {
+    if (compass[compass_now] == "e") {
+      robot_left(motor_speed[3][0],motor_speed[3][1],motor_delay[3]);
+    }else if (compass[compass_now] == "s") {
+      robot_opposite(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
+    }else if (compass[compass_now] == "w") {
+      robot_right(motor_speed[2][0],motor_speed[2][1],motor_delay[2]);
+    }
+  }else if (string_a == "e") {
+    if (compass[compass_now] == "s") {
+      robot_left(motor_speed[3][0],motor_speed[3][1],motor_delay[3]);
+    }else if (compass[compass_now] == "w") {
+      robot_opposite(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
+    }else if (compass[compass_now] == "n") {
+      robot_right(motor_speed[2][0],motor_speed[2][1],motor_delay[2]);
+    }
+  }else if (string_a == "s") {
+    if (compass[compass_now] == "w") {
+      robot_left(motor_speed[3][0],motor_speed[3][1],motor_delay[3]);
+    }else if (compass[compass_now] == "n") {
+      robot_opposite(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
+    }else if (compass[compass_now] == "e") {
+      robot_right(motor_speed[2][0],motor_speed[2][1],motor_delay[2]);
+    }
+  }else if (string_a == "w") {
+    if (compass[compass_now] == "n") {
+      robot_left(motor_speed[3][0],motor_speed[3][1],motor_delay[3]);
+    }else if (compass[compass_now] == "e") {
+      robot_opposite(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
+    }else if (compass[compass_now] == "s") {
+      robot_right(motor_speed[2][0],motor_speed[2][1],motor_delay[2]);
+    }
+  }
+}
 
 //color
 void get_rgb() {
