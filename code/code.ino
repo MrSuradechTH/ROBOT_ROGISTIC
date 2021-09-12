@@ -51,10 +51,22 @@ void xy14_to_shelf1() {
   get_stack(1);
 }
 
+void shelf1_to_xy14() {
+  compass_to("s");
+  get_stack(1);
+}
+
 void xy24_to_shelf2() {
   compass_to("e");
   get_stack(1);
   compass_to("n");
+  get_stack(1);
+}
+
+void shelf2_to_xy24() {
+  compass_to("s");
+  get_stack(1);
+  compass_to("w");
   get_stack(1);
 }
 
@@ -65,10 +77,24 @@ void xy34_to_shelf3() {
   get_stack(1);
 }
 
+void shelf3_to_xy34() {
+  compass_to("s");
+  get_stack(1);
+  compass_to("w");
+  get_stack(1);
+}
+
 void xy44_to_shelf4() {
   compass_to("e");
   get_stack(1);
   compass_to("n");
+  get_stack(1);
+}
+
+void shelf4_to_xy44() {
+  compass_to("s");
+  get_stack(1);
+  compass_to("w");
   get_stack(1);
 }
 
