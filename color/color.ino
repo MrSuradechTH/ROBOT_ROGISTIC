@@ -78,13 +78,12 @@ void get_color() {
     }else {
         color_stack_end[a] = "unknow";
     }
-    
   }
   for (uint8_t a = 0;a < color_all;a++) {
     if (color_stack_end[a] != "unknow") {
       color = color_stack_end[a];
       break;
-    }else if (a == color_all && color_stack_end[a] == "unknow") {
+    }else if (a == color_all-1 && color_stack_end[a] == "unknow") {
       color = "unknow";
     }
   }
