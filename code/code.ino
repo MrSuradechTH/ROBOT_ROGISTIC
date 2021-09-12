@@ -150,7 +150,7 @@ void set_color(uint8_t int_a) {
   Serial.println("COLOR[" + String(int_a) + "][" + color_name[int_a] + "] R[" + String(color_calibrate[int_a][0]) + "]" + "G[" + String(color_calibrate[int_a][1]) + "]" + "B[" + String(color_calibrate[int_a][2]) + "]");
 }
 
-void get_color() {
+String get_color() {
   for (uint8_t a = 0;a < color_all;a++) {
     get_rgb();
     for (uint8_t b = 0;b < check_color_loop;b++) {
@@ -326,9 +326,13 @@ void setup() {
 }
 
 void loop() {
+//color read
+//  String color_reads = get_color();
+//  Serial.println(color_reads);
+
 //  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);
 //  get_stack(1);
-line_check();
+//line_check();
   //get_color(); //return string color
 //debug
 //  line_check();
