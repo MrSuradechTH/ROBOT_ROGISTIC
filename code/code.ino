@@ -208,14 +208,33 @@ void robot_backward(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
 }
 
 void robot_right(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
+  Serial.println("right");
+  compass_now += 1;
+  if (compass_now > 3) {
+    compass_now = 0;
+  }
   robot_motor(1,0,0,1,analog_a,analog_b,int_a);
 }
 
 void robot_left(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
+  Serial.println("left");
+  compass_now -= 1;
+  if (compass_now < 0) {
+    compass_now = 3;
+  }
   robot_motor(0,1,1,0,analog_a,analog_b,int_a);
 }
 
 void robot_opposite(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
+  Serial.println("opposite");
+  compass_now += 1;
+  if (compass_now > 3) {
+    compass_now = 0;
+  }
+  compass_now += 1;
+  if (compass_now > 3) {
+    compass_now = 0;
+  }
   robot_motor(1,0,0,1,analog_a,analog_b,int_a);
 }
 
@@ -326,6 +345,9 @@ void setup() {
 }
 
 void loop() {
+//compass
+//Serial.println("[" + String(compass_now) + "][" + compass[compass_now] + "]");
+  
 //color read
 //  String color_reads = get_color();
 //  Serial.println(color_reads);
