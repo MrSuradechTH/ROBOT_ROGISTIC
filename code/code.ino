@@ -1,6 +1,5 @@
 //nesw_xy
 uint8_t x,y;
-uint8_t x_max = 8,y_max = 4;
 String compass[] = {"n","e","s","w"};
 int8_t compass_now = 0;
 
@@ -46,29 +45,35 @@ uint8_t stack;
 //String direction_controling = ""; //forward,backward,right,left,opposite (not yet used)
 
 //nesw_xy
-void xy_to_xy(uint8_t xstart,uint8_t ystart,uint8_t xstop,uint8_t ystop) {
+void xy_to_xy(uint8_t xstart,uint8_t ystart,uint8_t xstop,uint8_t ystop) { //xy_to_xy(x,y,xstop,ystop);
   if (ystart != 1) {
     if (ystart > 1) {
       compass_to("s");
+      y -= int(ystart - 1);
       get_stack(ystart - 1);
     }else if (ystart < 1) {
       compass_to("n");
+      y += int(1 - ystart);
       get_stack(1 - ystart);
     }
   }
   if (xstart < xstop) {
     compass_to("w");
+    x += int(xstop - xstart);
     get_stack(xstop - xstart);
   }else if (xstart > xstop) {
     compass_to("e");
+    x -= int(xstart - xstop);
     get_stack(xstart - xstop);
   }
 
   if (ystart > ystop) {
     compass_to("s");
+    y -= int(1 - ystop);
     get_stack(1 - ystop);
   }else if (ystart < ystop) {
     compass_to("n");
+    y += int(ystop - 1);
     get_stack(ystop - 1);
   }
 }
