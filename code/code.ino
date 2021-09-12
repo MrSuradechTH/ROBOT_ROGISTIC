@@ -44,6 +44,34 @@ String line_status; //,line_status_old
 uint8_t stack;
 //String direction_controling = ""; //forward,backward,right,left,opposite (not yet used)
 
+//xy_to_shelf
+//รอแก้ตอนสนามเสร็จ
+void xy14_to_shelf1() {
+  compass_to("n");
+  get_stack(1);
+}
+
+void xy24_to_shelf2() {
+  compass_to("e");
+  get_stack(1);
+  compass_to("n");
+  get_stack(1);
+}
+
+void xy34_to_shelf3() {
+  compass_to("e");
+  get_stack(1);
+  compass_to("n");
+  get_stack(1);
+}
+
+void xy44_to_shelf4() {
+  compass_to("e");
+  get_stack(1);
+  compass_to("n");
+  get_stack(1);
+}
+
 //nesw_xy
 void xy_to_xy(uint8_t xstart,uint8_t ystart,uint8_t xstop,uint8_t ystop) { //xy_to_xy(x,y,xstop,ystop);
   if (ystart != 1) {
@@ -354,8 +382,8 @@ void loop() {
 //Serial.println("[" + String(compass_now) + "][" + compass[compass_now] + "]");
   
 //color read
-//  String color_reads = get_color();
-//  Serial.println(color_reads);
+  String color_reads = get_color();
+  Serial.println(color_reads);
 
 //  robot_forward(motor_speed[0][0],motor_speed[0][1],motor_delay[0]);
 //  get_stack(1);
