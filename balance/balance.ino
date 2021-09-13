@@ -24,6 +24,10 @@ void robot_forward(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
   robot_motor(1,0,1,0,analog_a,analog_b,int_a);
 }
 
+void robot_stop(uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
+  robot_motor(0,0,0,0,analog_a,analog_b,int_a);
+}
+
 void line_check() {
   //line_status_old = line_status;
   line_status = "";
@@ -44,10 +48,10 @@ void balance() {
   }else if (line_status == "0000100" || line_status == "0001100"){
     motor_speed[0][1] = motor_speed[0][1] - speed_down[1];
   }else if (line_status == "0001000" || line_status == "0011100") {
-    motor_speed[0][0] = motor_speed_default;
-    motor_speed[0][1] = motor_speed_default;
+    motor_speed[0][0] = motor_speed_default[0];
+    motor_speed[0][1] = motor_speed_default[1];
   }else if (line_status == "0000000") {
-    robot_stop(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
+    robot_stop(0,0,0);
   }
 //  digitalWrite(motor[0][0], 1);
 //  digitalWrite(motor[0][1], 0);
