@@ -28,17 +28,17 @@ String color;
 const uint8_t motor_row = 4,motor_col = 3;
 uint8_t motor[motor_row][motor_col] = {{32, 33, 4},{34, 35, 6},{36, 37, 8},{48, 49, 10}}; //ล้อซ้าย,ล้อขวา,แขนซ้าย,แขนขวา (มองจากด้านหลัง)
 const uint8_t motor_speed_row = 6,motor_speed_col = 2;
-uint8_t motor_speed_default = 255;
-uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{motor_speed_default,motor_speed_default},{motor_speed_default,motor_speed_default},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
+uint8_t motor_speed_default[] = {255,255}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
+uint8_t motor_speed[motor_speed_row][motor_speed_col] = {{motor_speed_default[0],motor_speed_default[1]},{motor_speed_default[0],motor_speed_default[1]},{0,255},{255,0},{255,0},{0,0},}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด (มอเตอร์ซ้าย,มอเตอร์ขวา)
 uint8_t motor_delay[] = {0,0,1000,1000,2000,0}; //เดินหน้า,ถอยหลัง,เลี้ยวซ้าย,เลี้ยวขวา,กลับหลัง,หยุด
 
 //robot
-uint8_t speed_down_list[] = {50,25};
-uint8_t speed_down[] = {speed_down_list[0],int((speed_down_list[0]+speed_down_list[1])/2),speed_down_list[1]};
+uint8_t speed_down_list[] = {10,5}; //ค่าความเร็วที่ลดลงเมื่อจะหลุดเส้น อันแรกหลุดมาก อันสองหลุดน้อย **********
+uint8_t speed_down[] = {speed_down_list[0],speed_down_list[1]}; //int((speed_down_list[0]+speed_down_list[1])/2) ยังไม่มีการใช้งาน
 
 //line_sensor
 uint8_t line_sensor[] = {19,22,17,18,15,16,14};
-String line_status; //,line_status_old
+String line_status; //line_status_old ยังไม่มีการใช้งาน
 
 //other
 uint8_t stack;
@@ -339,6 +339,7 @@ void line_check() {
 //    }
 //}
 
+//balance
 void balance() {
   line_check();
   if (line_status == "0100000" || line_status == "0101000" || line_status == "0110000" || line_status == "0110000") {
@@ -352,13 +353,15 @@ void balance() {
   }else if (line_status == "0001000" || line_status == "0011100") {
     motor_speed[0][0] = motor_speed_default;
     motor_speed[0][1] = motor_speed_default;
+  }else if (line_status == "0000000") {
+    robot_stop(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
   }
-  digitalWrite(motor[0][0], 1);
-  digitalWrite(motor[0][1], 0);
-  digitalWrite(motor[1][0], 1);
-  digitalWrite(motor[1][1], 0);
-  analogWrite(motor[0][2], motor_speed[0][0]);
-  analogWrite(motor[1][2], motor_speed[0][1]);
+//  digitalWrite(motor[0][0], 1);
+//  digitalWrite(motor[0][1], 0);
+//  digitalWrite(motor[1][0], 1);
+//  digitalWrite(motor[1][1], 0);
+//  analogWrite(motor[0][2], motor_speed[0][0]);
+//  analogWrite(motor[1][2], motor_speed[0][1]);
 }
 
 void get_stack(uint8_t stack_count) {
