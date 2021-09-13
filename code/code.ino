@@ -351,8 +351,8 @@ void balance() {
   }else if (line_status == "0000100" || line_status == "0001100"){
     motor_speed[0][1] = motor_speed[0][1] - speed_down[1];
   }else if (line_status == "0001000" || line_status == "0011100") {
-    motor_speed[0][0] = motor_speed_default;
-    motor_speed[0][1] = motor_speed_default;
+    motor_speed[0][0] = motor_speed_default[0];
+    motor_speed[0][1] = motor_speed_default[1];
   }else if (line_status == "0000000") {
     robot_stop(motor_speed[4][0],motor_speed[4][1],motor_delay[4]);
   }
