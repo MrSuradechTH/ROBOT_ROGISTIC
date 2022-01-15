@@ -6,7 +6,7 @@ QMC5883LCompass compass;
 
 
 uint8_t motor[2][3] = {{36, 37, 8},{41, 40, 7}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา ถ้าไม่ตรงให้แก้
-uint8_t motor_speed_default[] = {45,40,50,50}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
+uint8_t motor_speed_default[] = {45,40,60,60}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
 //57,55
 //30,28
 uint8_t speed_down[] = {15};
@@ -80,9 +80,13 @@ void line_check() {
 void balance() {
   line_check();
   if (digitalRead(27) == 1 && digitalRead(30) == 0 && line_status == "00") {
-    robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+    while(digitalRead(28) == 0) {
+      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+    }
   }else if (digitalRead(27) == 0 && digitalRead(30) == 1 && line_status == "00") {
-    robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+    while(digitalRead(28) == 0) {
+      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+    }
   }else if (line_status == "00" || line_status == "11") {
       robot_forward();
   }else if (line_status == "10") {
