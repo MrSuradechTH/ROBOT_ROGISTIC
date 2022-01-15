@@ -6,20 +6,20 @@ QMC5883LCompass compass;
 
 
 uint8_t motor[2][3] = {{36, 37, 8},{41, 40, 7}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา ถ้าไม่ตรงให้แก้
-uint8_t motor_speed_default[] = {45,40,48,48}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
+uint8_t motor_speed_default[] = {45,40,50,50}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
 //57,55
 //30,28
 uint8_t speed_down[] = {15};
-uint8_t line_sensor[] = {28,29,30,31,32}; //กลาง 3 ตัวแรก 2 ตัวหลังอ่านข้าง แยกกัน
+uint8_t line_sensor[] = {27,28,29,30,31,32}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง แยกกัน
 String line_status; //line_status_old ยังไม่มีการใช้งาน
 int stack;
 
 String all_compass[] = {"n","e","s","w"}; 
 int compass_now = 0;
-int max_min = 1,degree_min,degree_max;
-int degree,degree_go,degree_set;
-const int all_stack = 21; //ต้องเป็นเลขคี่
-int degree_stack[all_stack];
+int degree,degree_set;
+
+//const int all_stack = 21; //ต้องเป็นเลขคี่
+//int degree_stack[all_stack];
 
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
   digitalWrite(motor[0][0], digital_a);
@@ -71,42 +71,32 @@ void robot_right(int degree_value) {
 
 void line_check() {
   line_status = "";
-  for(uint8_t c = 0;c < 3;c++) {
-    line_status += String(digitalRead(line_sensor[c]));
+  for(uint8_t c = 0;c < 2;c++) {
+    line_status += String(digitalRead(line_sensor[c + 1]));
   }
 //  Serial.println(line_status);
 }
 
 void balance() {
   line_check();
-  if (line_status == "010" || line_status == "111") {
+  if (digitalRead(27) == 1 && digitalRead(30) == 0 && line_status == "00") {
+    robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+  }else if (digitalRead(27) == 0 && digitalRead(30) == 1 && line_status == "00") {
+    robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+  }else if (line_status == "00" || line_status == "11") {
       robot_forward();
-  }else if (line_status == "100" || line_status == "110") {
+  }else if (line_status == "10") {
       robot_motor(1,0,1,0,motor_speed_default[0] - speed_down[0],motor_speed_default[1] + speed_down[0],0);
-  }else if (line_status == "001" || line_status == "011") {
+  }else if (line_status == "01") {
       robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
   }
-
-  if (digitalRead(31) == 1 || digitalRead(32) == 1) {
-    stack++;
-    Serial.println(stack);
-    while(digitalRead(31) == 1 || digitalRead(32) == 1) {
-      line_check();
-      if (line_status == "010" || line_status == "111") {
-        robot_forward();
-      }else if (line_status == "100" || line_status == "110") {
-          robot_motor(1,0,1,0,motor_speed_default[0] - speed_down[0],motor_speed_default[1] + speed_down[0],0);
-      }else if (line_status == "001" || line_status == "011") {
-          robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
-      }
-    }
-  }
+  
 }
 
 void get_degree() {
   compass.read();
   degree = compass.getAzimuth();
-  Serial.println(degree);
+//  Serial.println(degree);
 }
 
 void set_degree() {
@@ -115,21 +105,40 @@ void set_degree() {
 
 bool degree_stack_check() {
   bool st = false;
-  for (int a = 0;a < all_stack;a++) {
-    Serial.println(String(degree_set) + " " + String(degree) + " " + String(degree_stack[a]) + " " + String(digitalRead(29)));
-    degree_stack[a] = int(degree - (all_stack / 2) + a);
-    if (degree_stack[a] < 0) {
-      degree_stack[a] = 360 - abs(degree_stack[a]);
-    }else if (degree_stack[a] > 360) {
-      degree_stack[a] = degree_stack[a] - 360;
-    }
+//  for (int a = 0;a < all_stack;a++) {
+//    Serial.println(String(degree_set) + " " + String(degree) + " " + String(degree_stack[a]) + " " + String(digitalRead(29)));
+//    degree_stack[a] = int(degree - (all_stack / 2) + a);
+//    if (degree_stack[a] < 0) {
+//      degree_stack[a] = 360 - abs(degree_stack[a]);
+//    }else if (degree_stack[a] > 360) {
+//      degree_stack[a] = degree_stack[a] - 360;
+//    }
 
-    if (degree_stack[a] == degree_set) {
+    if (degree == degree_set) {
+//       && digitalRead(29) == 1
       st = true;
-      break;
+//      break;
+    }
+//  }
+  return st;
+}
+
+void get_stack(int stack_count) {
+  while(stack != stack_count) {
+    balance();
+    if (digitalRead(31) == 1 || digitalRead(32) == 1) {
+      stack++;
+      Serial.println(stack);
+      while(digitalRead(31) == 1 || digitalRead(32) == 1) {
+        balance();
+      }
     }
   }
-  return st;
+  reset_stack();
+}
+
+void reset_stack() {
+  stack = 0;
 }
 
 void setup() {
@@ -141,7 +150,7 @@ void setup() {
       pinMode(motor[a][b], OUTPUT);
     }
   }
-  for(uint8_t c = 0;c < 5;c++) {
+  for(uint8_t c = 0;c < 6;c++) {
     pinMode(line_sensor[c], INPUT);
   }
   get_degree();
@@ -149,11 +158,9 @@ void setup() {
 
 void loop() {
   balance();
-  if (stack == 5) {
-    robot_right(90);
-    stack = 0;
-    while(true) {
-      robot_stop();
-    }
-  }
+  get_stack(3);
+    robot_left(180);
+//    while(true) {
+//      robot_stop();
+//    }
 }
