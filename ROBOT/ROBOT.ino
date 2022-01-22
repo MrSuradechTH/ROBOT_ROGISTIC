@@ -2,15 +2,14 @@
 
 QMC5883LCompass compass;
 
-uint8_t motor[2][3] = {{36, 37, 8},{41, 40, 7}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา ถ้าไม่ตรงให้แก้
+uint8_t motor[3][3] = {{36, 37, 8},{41, 40, 7},{42, 43, 6}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา ถ้าไม่ตรงให้แก้
 uint8_t motor_speed_default[] = {50,50,60,60}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
 uint8_t speed_down[] = {15,7};
 uint8_t line_sensor[] = {27,28,29,30,31,32}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง แยกกัน
 String line_status; //line_status_old ยังไม่มีการใช้งาน
 int stack;
+int lm = 52;
 
-//String all_compass[] = {"n","e","s","w"}; 
-int compass_now = 0;
 int degree,degree_set;
 
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,uint8_t analog_a,uint8_t analog_b,uint16_t int_a) {
@@ -34,31 +33,45 @@ void robot_stop() {
 }
 
 void robot_left(int degree_value) {
-  set_degree();
-  degree_set -= degree_value;
-  if  (degree_set < 0) {
-    degree_set = 360 - abs(degree_set);
-  }
+//  set_degree();
+//  degree_set -= degree_value;
+//  if  (degree_set < 0) {
+//    degree_set = 360 - abs(degree_set);
+//  }
   robot_motor(0,1,1,0,motor_speed_default[2],motor_speed_default[3],0);
-  while(!degree_stack_check()) {
-    get_degree();
-    Serial.println(String(degree) + " " + String(degree_set));
+//  while(!degree_stack_check()) {
+//    get_degree();
+//    Serial.println(String(degree) + " " + String(degree_set));
+//  }
+  while(digitalRead(27) == LOW) {
+  
+  }
+  while(digitalRead(29) == LOW) {
+    
   }
   get_out_line();
   robot_stop();
 }
 
 void robot_right(int degree_value) {
-  set_degree();
-  degree_set += degree_value;
-  if  (degree_set > 360) {
-    degree_set = degree_set - 360;
-  }
+//  set_degree();
+//  degree_set += degree_value;
+//  if  (degree_set > 360) {
+//    degree_set = degree_set - 360;
+//  }
   robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
-  while(!degree_stack_check()) {
-    get_degree();
-    Serial.println(String(degree) + " " + String(degree_set));
+//  while(!degree_stack_check()) {
+//    get_degree();
+//    Serial.println(String(degree) + " " + String(degree_set));
+//  }
+
+  while(digitalRead(30) == LOW) {
+  
   }
+  while(digitalRead(28) == LOW) {
+    
+  }
+
   get_out_line();
   robot_stop();
 }
@@ -129,7 +142,13 @@ void reset_stack() {
 
 void get_out_line() {
   while(digitalRead(31) == 1 || digitalRead(32) == 1) {
-    balance();
+    if(digitalRead(31) == 1 && digitalRead(32) == 1) {
+      balance();
+    }else if (digitalRead(31) == 1 && digitalRead(32) == 0) {
+      robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+    }else if (digitalRead(31) == 0 && digitalRead(32) == 1) {
+      robot_motor(0,1,1,0,motor_speed_default[2],motor_speed_default[3],0);
+    }  
   }
 }
 
@@ -137,7 +156,7 @@ void setup() {
   Serial.begin(9600);
   compass.init();
   compass.setCalibration(-1702, 512, -1911, 281, -2048, 0);
-  for(uint8_t a = 0;a < 2;a++) {
+  for(uint8_t a = 0;a < 3;a++) {
     for(uint8_t b = 0;b < 3;b++) {
       pinMode(motor[a][b], OUTPUT);
     }
@@ -146,23 +165,41 @@ void setup() {
   for(uint8_t c = 0;c < 6;c++) {
     pinMode(line_sensor[c], INPUT);
   }
+
+  pinMode(lm, INPUT);
+  
   get_degree();
+//  get_stack(1);
+//  robot_left(90);
 }
 
 void loop() {
-//  get_stack(1);
-//  robot_left(90);
-//  delay(5000);
-//  get_stack(1);
-//  robot_left(180);
-//  delay(5000);
+
+  Serial.println(digitalRead(lm));
+  
+  while(digitalRead(lm) == LOW) {
+    digitalWrite(motor[2][0], 1);
+    digitalWrite(motor[2][1], 0);
+    analogWrite(motor[2][2], 255);
+    delay(1100);
+  }
+  while(digitalRead(lm) == HIGH) {
+    digitalWrite(motor[2][0], 0);
+    digitalWrite(motor[2][1], 1);
+    analogWrite(motor[2][2], 255);
+  }
+  
 //  get_stack(1);
 //  robot_right(90);
-//  delay(5000);
-//  robot_forward();
-//  delay(1000);
-//  robot_right(180);
-//  delay(5000);
+//  get_stack(3);
+//  robot_right(90);
+//  get_stack(2);
+//  robot_right(90);
+//  get_stack(1);
+//  robot_right(90);
+//  while(true) {
+//    
+//  }
   
 //  get_stack(3);
 //  robot_left(180);
