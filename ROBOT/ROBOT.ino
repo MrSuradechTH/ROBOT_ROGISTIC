@@ -1,6 +1,8 @@
 #include <QMC5883LCompass.h>
-
 QMC5883LCompass compass;
+
+#include <Servo.h>
+Servo ser_l,ser_r;
 
 uint8_t motor[3][3] = {{36, 37, 8},{41, 40, 7},{42, 43, 6}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา ถ้าไม่ตรงให้แก้
 uint8_t motor_speed_default[] = {50,50,60,60}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง **********
@@ -8,7 +10,7 @@ uint8_t speed_down[] = {15,7};
 uint8_t line_sensor[] = {27,28,29,30,31,32}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง แยกกัน
 String line_status; //line_status_old ยังไม่มีการใช้งาน
 int stack;
-int lm = 52;
+int lm[] = {52,53};
 
 int degree,degree_set;
 
@@ -166,8 +168,12 @@ void setup() {
     pinMode(line_sensor[c], INPUT);
   }
 
-  pinMode(lm, INPUT);
-  
+  for(uint8_t d = 0;d < 2;d++) {
+    pinMode(lm[d], INPUT);
+  }
+
+  ser_l.attach(10);
+  ser_r.attach(11);
   get_degree();
 //  get_stack(1);
 //  robot_left(90);
@@ -177,17 +183,28 @@ void loop() {
 
   Serial.println(digitalRead(lm));
   
-  while(digitalRead(lm) == LOW) {
+  while(digitalRead(lm[1]) == HIGH) {
     digitalWrite(motor[2][0], 1);
     digitalWrite(motor[2][1], 0);
     analogWrite(motor[2][2], 255);
-    delay(1100);
   }
-  while(digitalRead(lm) == HIGH) {
+    digitalWrite(motor[2][0], 0);
+    digitalWrite(motor[2][1], 0);
+    analogWrite(motor[2][2], 0);
+    ser_l.write(40);
+    ser_r.write(140);
+    delay(1000);
+  while(digitalRead(lm[0]) == HIGH) {
     digitalWrite(motor[2][0], 0);
     digitalWrite(motor[2][1], 1);
     analogWrite(motor[2][2], 255);
   }
+    digitalWrite(motor[2][0], 0);
+    digitalWrite(motor[2][1], 0);
+    analogWrite(motor[2][2], 0);
+    ser_l.write(90);
+    ser_r.write(90);
+    delay(1000);
   
 //  get_stack(1);
 //  robot_right(90);
@@ -208,4 +225,11 @@ void loop() {
 //  while(true) {
 //    robot_stop();
 //  }
+
+
+//ser_l.write(37);
+//ser_r.write(140);
+//
+//ser_l.write(45);
+//ser_r.write(130);
 }
