@@ -6,7 +6,7 @@ QMC5883LCompass compass;
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 uint8_t motor[3][3] = {{44, 45, 8},{46, 47, 9},{48, 49, 10}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา,เซอร์โว
-int motor_speed_default[] = {400,460,450,510}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
+int motor_speed_default[] = {300,350,450,500}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
 uint8_t speed_down[] = {100,100};
 uint8_t line_sensor[] = {22,23,24,25,26,27}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง ไล่จากซ้ายไปขวา
 String line_status;
@@ -14,7 +14,7 @@ int stack;
 int lm[] = {32,34,35};
 
 int degree,degree_set;
-byte arm_level_now = 3;
+byte arm_level_now;
 
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,int analog_a,int analog_b,uint16_t int_a) {
   digitalWrite(motor[0][0], digital_a);
@@ -249,14 +249,14 @@ void setup() {
 //  get_stack(1);
 //  robot_left(90);
 
-//    arm_set(1);
-//    open_arm();
+    arm_set(3);
+    open_arm();
 }
 
 void loop() {
 //  Serial.println(digitalRead(lm));
 
-robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
+//robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
 
 //  get_stack(1);
 //  robot_right(90);
@@ -292,9 +292,18 @@ robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
 //arm_set(3);
 //Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
 
-
+delay(5000);
 get_stack(1);
 robot_right(90);
+delay(5000);
+get_stack(1);
+robot_right(90);
+delay(5000);
+arm_set(1);
+delay(1000);
+close_arm();
+delay(1000);
+arm_set(3);
 while(true) {
     robot_stop();
   }
