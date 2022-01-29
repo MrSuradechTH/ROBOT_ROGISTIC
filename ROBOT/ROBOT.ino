@@ -1,16 +1,13 @@
 #include <QMC5883LCompass.h>
 QMC5883LCompass compass;
 
-#include <Servo.h>
-Servo ser_l,ser_r;
-
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 uint8_t motor[3][3] = {{44, 45, 8},{46, 47, 9},{48, 49, 10}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา,เซอร์โว
-int motor_speed_default[] = {1200,1200,1200,1200}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
-uint8_t speed_down[] = {500,500};
+int motor_speed_default[] = {400,460,450,510}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
+uint8_t speed_down[] = {100,100};
 uint8_t line_sensor[] = {22,23,24,25,26,27}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง ไล่จากซ้ายไปขวา
 String line_status;
 int stack;
@@ -101,14 +98,20 @@ void line_check() {
 
 void balance() {
   line_check();
-  if (digitalRead(line_sensor[0]) == 1 && digitalRead(line_sensor[3]) == 0 && line_status == "00") {
+  if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
+    robot_forward();
+  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
     while(digitalRead(line_sensor[1]) == 0) {
       robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
     }
-  }else if (digitalRead(line_sensor[0]) == 0 && digitalRead(line_sensor[3]) == 1 && line_status == "00") {
+  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
     while(digitalRead(line_sensor[1]) == 0) {
       robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
     }
+  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 0) {
+      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
+      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
   }else if (line_status == "00" || line_status == "11") {
       robot_forward();
   }else if (line_status == "10") {
@@ -145,7 +148,7 @@ void get_stack(int stack_count) {
     if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
       stack++;
       Serial.println(stack);
-      get_out_line();
+      get_out_line_forward();
     }
   }
   reset_stack();
@@ -167,17 +170,32 @@ void get_out_line() {
   }
 }
 
+void get_out_line_forward() {
+  while(digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
+    balance();
+  }
+}
+
+int angle(int angles)
+{ 
+  int pulse_wide, analog_value;
+  pulse_wide = map(angles, 0, 180, 650, 2350);
+  analog_value = int(float(pulse_wide) / 1000000 * 50 * 4096);
+  return analog_value;
+}
+
 void open_arm() {
-  ser_l.write(40);
-  ser_r.write(140);
+  pwm.setPWM(0, 0, angle(70));
+  pwm.setPWM(1, 0, angle(90));
 }
 
 void close_arm() {
-  ser_l.write(90);
-  ser_r.write(90);
+  pwm.setPWM(0, 0, angle(130));
+  pwm.setPWM(1, 0, angle(30));
 }
 
 void arm_set(byte level) {
+  Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
   if (level != arm_level_now) {
     if (level > arm_level_now) {
       while(digitalRead(lm[level - 1]) == HIGH) {
@@ -221,32 +239,35 @@ void setup() {
     pinMode(lm[d], INPUT);
   }
 
-  ser_l.attach(10);
-  ser_r.attach(11);
-  get_degree();
-  
-  arm_set(1);
-  open_arm();
+  get_degree();  
 
   pwm.begin();
   //pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(1000);
+  pwm.setPWMFreq(50);
   Wire.setClock(400000);
   
 //  get_stack(1);
 //  robot_left(90);
+
+//    arm_set(1);
+//    open_arm();
 }
 
 void loop() {
 //  Serial.println(digitalRead(lm));
 
-//  robot_forward();
-//  delay(5000);
-//  robot_motor(0,1,1,0,motor_speed_default[2],motor_speed_default[3],0);
-//  delay(5000);
-//  robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
-//  delay(5000);
+robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
 
+//  get_stack(1);
+//  robot_right(90);
+//  delay(5000);
+//  get_stack(1);
+//  robot_right(90);
+//  delay(5000);
+//  close_arm();
+//  delay(1000);
+//  arm_set(3);
+  
 //  arm_set(1);
 //  close_arm();
 //  delay(1000);
@@ -267,11 +288,19 @@ void loop() {
 //line_check();
 //balance();
       
-arm_set(1);
-arm_set(3);
-Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
-//get_stack(1);
-//while(true) {
-//    robot_stop();
-//  }
+//arm_set(1);
+//arm_set(3);
+//Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
+
+
+get_stack(1);
+robot_right(90);
+while(true) {
+    robot_stop();
+  }
+
+//open_arm();
+//delay(1000);
+//close_arm();
+//delay(1000);
 }
