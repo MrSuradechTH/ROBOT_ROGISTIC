@@ -13,7 +13,7 @@ String line_status;
 int stack;
 int lm[] = {32,34,35};
 int ir = 33;
-bool box_check;
+bool box_check = false;
 
 int degree,degree_set;
 byte arm_level_now;
