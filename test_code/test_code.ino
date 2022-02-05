@@ -15,8 +15,7 @@ int lm[] = {32,34,35};
 int ir = 33;
 bool box_check = false;
 
-int degree,degree_set;
-byte arm_level_now;
+byte arm_level_now = 3;
 
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,int analog_a,int analog_b,uint16_t int_a) {
   digitalWrite(motor[0][0], digital_a);
@@ -38,17 +37,8 @@ void robot_stop() {
   robot_motor(0,0,0,0,0,0,0);
 }
 
-void robot_left(int degree_value) {
-//  set_degree();
-//  degree_set -= degree_value;
-//  if  (degree_set < 0) {
-//    degree_set = 360 - abs(degree_set);
-//  }
+void robot_left() {
   robot_motor(0,1,1,0,motor_speed_default[2],motor_speed_default[3],0);
-//  while(!degree_stack_check()) {
-//    get_degree();
-//    Serial.println(String(degree) + " " + String(degree_set));
-//  }
 
   while(digitalRead(line_sensor[0]) == LOW) {
   
@@ -60,21 +50,13 @@ void robot_left(int degree_value) {
   robot_stop();
 }
 
-void robot_right(int degree_value) {
-//  set_degree();
-//  degree_set += degree_value;
-//  if  (degree_set > 360) {
-//    degree_set = degree_set - 360;
-//  }
+void robot_right() {
   robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
-//  while(!degree_stack_check()) {
-//    get_degree();
-//    Serial.println(String(degree) + " " + String(degree_set));
-//  }
 
   while(digitalRead(line_sensor[3]) == LOW) {
   
   }
+  
   while(digitalRead(line_sensor[1]) == LOW) {
     
   }
@@ -83,13 +65,28 @@ void robot_right(int degree_value) {
   robot_stop();
 }
 
+void turn_around() {
+  while(digitalRead(line_sensor[5]) == LOW) {
+    robot_motor(0,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+  }
+  
+  while(digitalRead(line_sensor[4]) == LOW) {
+    robot_motor(1,0,0,0,motor_speed_default[2],motor_speed_default[3],0);
+  }
+  
+  robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+  while(digitalRead(line_sensor[1]) == LOW) {
+
+  }
+}
+
 void line_check() {
   line_status = "";
   for(uint8_t c = 0;c < 2;c++) {
     line_status += String(digitalRead(line_sensor[c + 1]));
   }
 
-//String  line_statuss = "";
+//  String  line_statuss = "";
 //  line_status += String(digitalRead(line_sensor[4]));
 //  for(uint8_t c = 0;c < 4;c++) {
 //    line_statuss += String(digitalRead(line_sensor[c]));
@@ -103,7 +100,7 @@ void balance() {
   if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
     robot_forward();
   }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
-    while(digitalRead(line_sensor[1]) == 0) {
+    while(digitalRead(line_sensor[2]) == 0) {
       robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
     }
   }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
@@ -124,39 +121,18 @@ void balance() {
   
 }
 
-void get_degree() {
-  compass.read();
-  degree = compass.getAzimuth();
-//  Serial.println(degree);
-}
-
-void set_degree() {
-  get_degree();
-  degree_set = degree;
-}
-
-bool degree_stack_check() {
-  bool st = false;
-    if (degree == degree_set - 1 || degree == degree_set || degree == degree_set + 1) {
-//       && digitalRead(29) == 1
-      st = true;
-    }
-  return st;
-}
-
 void get_stack(int stack_count) {
   while(stack != stack_count) {
+    Serial.println(stack);
     balance();
     if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
       stack++;
       Serial.println(stack);
       get_out_line_forward();
+    }else if (digitalRead(ir) == 0 && box_check == false) {
+        stack++;
     }
   }
-  reset_stack();
-}
-
-void reset_stack() {
   stack = 0;
 }
 
@@ -197,13 +173,14 @@ void close_arm() {
 }
 
 void arm_set(byte level) {
-  Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
+  robot_stop();
+//  Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
   if (level != arm_level_now) {
     if (level > arm_level_now) {
       while(digitalRead(lm[level - 1]) == HIGH) {
         digitalWrite(motor[2][0], 0);
         digitalWrite(motor[2][1], 1);
-        pwm.setPWM(motor[2][2], 0, 4095);
+        pwm.setPWM(motor[2][2], 0, 800);
       }
       digitalWrite(motor[2][0], 0);
       digitalWrite(motor[2][1], 0);
@@ -213,7 +190,7 @@ void arm_set(byte level) {
       while(digitalRead(lm[level - 1]) == HIGH) {
         digitalWrite(motor[2][0], 1);
         digitalWrite(motor[2][1], 0);
-        pwm.setPWM(motor[2][2], 0, 4095);
+        pwm.setPWM(motor[2][2], 0, 400);
       }
       digitalWrite(motor[2][0], 0);
       digitalWrite(motor[2][1], 0);
@@ -224,10 +201,17 @@ void arm_set(byte level) {
 }
 
 void get_box() {
-    arm_set(1);
-    close_arm();
-    arm_set(3);
-    box_check = true;
+  arm_set(1);
+  delay(500);
+  close_arm();
+  delay(500);
+  arm_set(3);
+  box_check = true;
+  turn_around(); 
+}
+
+void put_box(int level_need) {
+  box_check = false;
 }
 
 void setup() {
@@ -250,7 +234,7 @@ void setup() {
 
   pinMode(ir, INPUT);
 
-  get_degree();  
+//  get_degree();  
 
   pwm.begin();
   //pwm.setOscillatorFrequency(27000000);
@@ -260,97 +244,31 @@ void setup() {
 //  get_stack(1);
 //  robot_left(90);
 
-    arm_set(3);
-    open_arm();
+//    arm_set(1);
+//    open_arm();
 }
 
 void loop() {
-//  Serial.println(digitalRead(lm));
+  String  line_statuss = "";
+  line_status += String(digitalRead(line_sensor[4]));
+  for(uint8_t c = 0;c < 4;c++) {
+    line_statuss += String(digitalRead(line_sensor[c]));
+  }
+  line_statuss += String(digitalRead(line_sensor[5]));
+  Serial.println(line_statuss);
 
-//robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
 
-//  get_stack(1);
-//  robot_right(90);
-//  delay(5000);
-//  get_stack(1);
-//  robot_right(90);
-//  delay(5000);
-//  close_arm();
-//  delay(1000);
-//  arm_set(3);
-  
-//  arm_set(1);
-//  close_arm();
-//  delay(1000);
-//  arm_set(2);
-//  delay(1000);
-//  get_stack(1);
-//  robot_left(90);
-//  get_stack(1);
-//  robot_left(90);
-//  get_stack(1);
-//  close_arm();
-//  get_stack(1);
-//  robot_right(90);
-//  while(true) {
-//    robot_stop();
-//  }
 
-//line_check();
-//balance();
-      
-//arm_set(1);
-//arm_set(3);
-//Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
 
-//delay(5000);
 //get_stack(1);
-//robot_right(90);
-//delay(5000);
+//robot_left();
 //get_stack(1);
-//robot_right(90);
-//delay(5000);
-//arm_set(1);
-//delay(1000);
-//close_arm();
-//delay(1000);
-//arm_set(3);
+//robot_left();
+//get_stack(1);
+//get_box();
+//get_stack(4);
 //while(true) {
 //    robot_stop();
 //}
 
-
-  line_check();
-  if (digitalRead(ir) == 1 && box_check == false) {
-    get_box();
-    while(true) {
-      robot_stop();
-    }
-  }if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
-    robot_forward();
-  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
-    while(digitalRead(line_sensor[1]) == 0) {
-      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
-    }
-  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
-    while(digitalRead(line_sensor[1]) == 0) {
-      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
-    }
-  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 0) {
-      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
-  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
-      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
-  }else if (line_status == "00" || line_status == "11") {
-      robot_forward();
-  }else if (line_status == "10") {
-      robot_motor(1,0,1,0,motor_speed_default[0] - speed_down[0],motor_speed_default[1] + speed_down[0],0);
-  }else if (line_status == "01") {
-      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
-  }
-
-
-//open_arm();
-//delay(1000);
-//close_arm();
-//delay(1000);
 }
