@@ -1,22 +1,36 @@
-#include <QMC5883LCompass.h>
-QMC5883LCompass compass;
-
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
+//motor
 uint8_t motor[3][3] = {{44, 45, 8},{46, 47, 9},{48, 49, 10}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา,เซอร์โว
-int motor_speed_default[] = {300,350,450,500}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
+uint16_t motor_speed_default[] = {300,350,450,500}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
 uint8_t speed_down[] = {100,100};
+
+//line
 uint8_t line_sensor[] = {22,23,24,25,26,27}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง ไล่จากซ้ายไปขวา
 String line_status;
-int stack;
-int lm[] = {32,34,35};
-int ir = 33;
+uint8_t stack;
+
+//arm
+uint8_t lm[] = {32,34,35};
+uint8_t arm_level_now = 3;
+
+//box
+uint8_t ir = 33;
+uint8_t picked;
 bool box_check = false;
+bool box_state[] = {true,true,true,true,true,true,true,true};
+bool shelf_state[] = {true,true,true,true,true,true,true,true};
+//bool shelf_color[] = {"red","green","red","green","red","green","red","green"}; //รอเข้าชั้นให้ได้ สีเรียงจากบนลงล่าง ซ้ายไปขวา
 
-byte arm_level_now = 3;
+//map
+uint8_t x = 9,y = 5;
+uint8_t x_now,y_now,x_go,y_go;
+uint8_t y_get_box,y_get_box,x_put_box,y_put_box;
 
+
+//motor
 void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t digital_d,int analog_a,int analog_b,uint16_t int_a) {
   digitalWrite(motor[0][0], digital_a);
   digitalWrite(motor[0][1], digital_b);
@@ -43,9 +57,11 @@ void robot_left() {
   while(digitalRead(line_sensor[0]) == LOW) {
   
   }
+  
   while(digitalRead(line_sensor[2]) == LOW) {
     
   }
+  
   get_out_line();
   robot_stop();
 }
@@ -80,10 +96,11 @@ void turn_around() {
   }
 }
 
+//line
 void line_check() {
   line_status = "";
-  for(uint8_t c = 0;c < 2;c++) {
-    line_status += String(digitalRead(line_sensor[c + 1]));
+  for(uint8_t f = 0;f < 2;f++) {
+    line_status += String(digitalRead(line_sensor[f + 1]));
   }
 
 //  String  line_statuss = "";
@@ -108,9 +125,11 @@ void balance() {
       robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
     }
   }else if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 0) {
-      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+//      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+  robot_forward();
   }else if (digitalRead(line_sensor[0]) == 0 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
-      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+//      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+  robot_forward();
   }else if (line_status == "00" || line_status == "11") {
       robot_forward();
   }else if (line_status == "10") {
@@ -118,12 +137,11 @@ void balance() {
   }else if (line_status == "01") {
       robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
   }
-  
 }
 
-void get_stack(int stack_count) {
+void get_stack(uint8_t stack_count) {
   while(stack != stack_count) {
-    Serial.println(stack);
+//    Serial.println(stack);
     balance();
     if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
       stack++;
@@ -154,7 +172,8 @@ void get_out_line_forward() {
   }
 }
 
-int angle(int angles)
+//arm
+uint8_t angle(uint8_t angles)
 { 
   int pulse_wide, analog_value;
   pulse_wide = map(angles, 0, 180, 650, 2350);
@@ -172,7 +191,7 @@ void close_arm() {
   pwm.setPWM(1, 0, angle(30));
 }
 
-void arm_set(byte level) {
+void arm_set(uint8_t level) {
   robot_stop();
 //  Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
   if (level != arm_level_now) {
@@ -200,6 +219,7 @@ void arm_set(byte level) {
   }
 }
 
+//box
 void get_box() {
   arm_set(1);
   delay(500);
@@ -210,14 +230,37 @@ void get_box() {
   turn_around(); 
 }
 
-void put_box(int level_need) {
-  box_check = false;
+//void put_box(uint8_t level_need) {
+//  box_check = false;
+//}
+
+//map
+void goto_xy(uint8_t x,uint8_t y) {
+  
+}
+
+void goto_box() {
+  picked = 0;
+  for (uint8_t g;g < 8;g++) {
+    if (box_state[] == true) {
+      x_go = 1 + g;
+      y_go = 0;
+    }else {
+      picked++;
+    }
+  }
+
+  //end fuction
+  if (picked == 8) {
+    x_go = 8;
+    y_go = 4;
+  }
+
+  goto_xy(x_go,y_go);
 }
 
 void setup() {
   Serial.begin(9600);
-  compass.init();
-  compass.setCalibration(-1702, 512, -1911, 281, -2048, 0);
   for(uint8_t a = 0;a < 3;a++) {
     for(uint8_t b = 0;b < 2;b++) {
       pinMode(motor[a][b], OUTPUT);
@@ -251,14 +294,11 @@ void setup() {
 void loop() {
   String  line_statuss = "";
   line_status += String(digitalRead(line_sensor[4]));
-  for(uint8_t c = 0;c < 4;c++) {
-    line_statuss += String(digitalRead(line_sensor[c]));
+  for(uint8_t e = 0;e < 4;e++) {
+    line_statuss += String(digitalRead(line_sensor[e]));
   }
   line_statuss += String(digitalRead(line_sensor[5]));
   Serial.println(line_statuss);
-
-
-
 
 //get_stack(1);
 //robot_left();
