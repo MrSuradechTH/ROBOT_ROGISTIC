@@ -18,16 +18,17 @@ uint8_t arm_level_now = 3;
 
 //box
 uint8_t ir = 33;
-uint8_t picked;
+uint8_t success;
 bool box_check = false;
 bool box_state[] = {true,true,true,true,true,true,true,true};
 bool shelf_state[] = {true,true,true,true,true,true,true,true};
+uint8_t shelf_stack,shelf_now;
 //bool shelf_color[] = {"red","green","red","green","red","green","red","green"}; //รอเข้าชั้นให้ได้ สีเรียงจากบนลงล่าง ซ้ายไปขวา
 
 //map
-uint8_t x = 9,y = 5;
+uint8_t x = 8,y = 4;
 uint8_t x_now,y_now,x_go,y_go;
-uint8_t y_get_box,y_get_box,x_put_box,y_put_box;
+uint8_t x_get_box,y_get_box,x_put_box,y_put_box;
 
 
 //motor
@@ -235,27 +236,56 @@ void get_box() {
 //}
 
 //map
-void goto_xy(uint8_t x,uint8_t y) {
-  
+void goto_xy(uint8_t x_need,uint8_t y_need) {
+//  if (box_check = true) {
+//    if (
+//  }else {
+//    
+//  }
 }
 
 void goto_box() {
-  picked = 0;
+  success = 0;
   for (uint8_t g;g < 8;g++) {
-    if (box_state[] == true) {
+    if (box_state[g] == true) {
       x_go = 1 + g;
       y_go = 0;
+      break;
     }else {
-      picked++;
+      success++;
     }
   }
 
-  //end fuction
-  if (picked == 8) {
-    x_go = 8;
-    y_go = 4;
+  if (success == 8) {
+    goto_shelf();
+  }
+  goto_xy(x_go,y_go);
+}
+
+void goto_shelf() {
+  success = 0;
+  for (uint8_t h;h < 8;h++) {
+    if (shelf_state[h] == true) {
+      shelf_now = (h%4) + 1;
+      if (h%4 > 1) {
+        x_go = 0;
+        y_go = 4;
+        shelf_stack = 4 - (h%4);
+      }else {
+        x_go = 8;
+        y_go = 4;
+        shelf_stack = (h%4) + 1;
+      }
+      break;
+    }else {
+      success++;
+    }
   }
 
+  //get gold box and put to end fuction
+  if (success == 8) {
+    goto_shelf();
+  }
   goto_xy(x_go,y_go);
 }
 
