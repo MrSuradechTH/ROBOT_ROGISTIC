@@ -485,4 +485,5 @@ void loop() {
     goto_shelf();
     goto_box();
   }
+  robot_stop();
 }
