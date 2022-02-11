@@ -18,17 +18,17 @@ uint8_t arm_level_now = 3;
 
 //box
 uint8_t ir = 33;
-uint8_t success;
+uint8_t box_success,shelf_success;
 bool box_check = false;
 bool box_state[] = {true,true,true,true,true,true,true,true};
 bool shelf_state[] = {true,true,true,true,true,true,true,true};
-uint8_t shelf_stack,shelf_now;
+uint8_t shelf_stack,shelf_now,shelf_floor;
 //bool shelf_color[] = {"red","green","red","green","red","green","red","green"}; //รอเข้าชั้นให้ได้ สีเรียงจากบนลงล่าง ซ้ายไปขวา
 
 //map
 uint8_t x = 8,y = 4;
 uint8_t x_now,y_now,x_go,y_go;
-uint8_t x_get_box,y_get_box,x_put_box,y_put_box;
+uint8_t x_get_box,y_get_box = 1,x_put_box,y_put_box = 4;
 
 
 //motor
@@ -46,6 +46,10 @@ void robot_motor(uint8_t digital_a,uint8_t digital_b,uint8_t digital_c,uint8_t d
 
 void robot_forward() {
   robot_motor(1,0,1,0,motor_speed_default[0],motor_speed_default[1],0);
+}
+
+void robot_backward() {
+  
 }
 
 void robot_stop() {
@@ -140,16 +144,84 @@ void balance() {
   }
 }
 
+void balance_backward() {
+  line_check();
+  if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
+    robot_backward();
+  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
+    while(digitalRead(line_sensor[2]) == 0) {
+      robot_motor(0,1,0,1,0,motor_speed_default[1] + speed_down[0],0);
+    }
+  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
+    while(digitalRead(line_sensor[1]) == 0) {
+      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[0],0,0);
+    }
+  }else if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 0) {
+//      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
+  robot_backward();
+  }else if (digitalRead(line_sensor[0]) == 0 && line_status == "11" && digitalRead(line_sensor[3]) == 1) {
+//      robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
+  robot_backward();
+  }else if (line_status == "00" || line_status == "11") {
+      robot_backward();
+  }else if (line_status == "10") {
+      robot_motor(0,1,0,1,motor_speed_default[0] - speed_down[0],motor_speed_default[1] + speed_down[0],0);
+  }else if (line_status == "01") {
+      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
+  }
+}
+
 void get_stack(uint8_t stack_count) {
   while(stack != stack_count) {
 //    Serial.println(stack);
     balance();
+    if (box_check == true && digitalRead(line_sensor[0]) == 1 && digitalRead(line_sensor[3]) == 1 && y_now == y_put_box) {
+      stack++;
+    }
+    
     if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
       stack++;
-      Serial.println(stack);
       get_out_line_forward();
     }else if (digitalRead(ir) == 0 && box_check == false) {
         stack++;
+    }
+  }
+  stack = 0;
+}
+
+void get_stack_backward(uint8_t stack_count) {  //only 1 stack
+  while(stack != stack_count) {
+//    Serial.println(stack);
+    balance_backward();
+    if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
+      stack++;
+      get_out_line_forward();
+    }
+  }
+  stack = 0;
+}
+
+void get_stack_left(uint8_t stack_count) {
+  while(stack != stack_count) {
+//    Serial.println(stack);
+    balance();
+    
+    if (digitalRead(line_sensor[4]) == 1) {
+      stack++;
+      get_out_line_forward();
+    }
+  }
+  stack = 0;
+}
+
+void get_stack_right(uint8_t stack_count) {
+  while(stack != stack_count) {
+//    Serial.println(stack);
+    balance();
+    
+    if (digitalRead(line_sensor[5]) == 1) {
+      stack++;
+      get_out_line_forward();
     }
   }
   stack = 0;
@@ -193,7 +265,6 @@ void close_arm() {
 }
 
 void arm_set(uint8_t level) {
-  robot_stop();
 //  Serial.println(String(digitalRead(lm[0])) + " : " + String(digitalRead(lm[1])) + " : " + String(digitalRead(lm[2])));
   if (level != arm_level_now) {
     if (level > arm_level_now) {
@@ -222,6 +293,7 @@ void arm_set(uint8_t level) {
 
 //box
 void get_box() {
+  robot_stop();
   arm_set(1);
   delay(500);
   close_arm();
@@ -231,41 +303,114 @@ void get_box() {
   turn_around(); 
 }
 
-//void put_box(uint8_t level_need) {
-//  box_check = false;
-//}
+void put_box() {
+  robot_stop();
+  robot_backward();
+  get_stack_backward(1);
+  box_check = false;
+}
 
 //map
 void goto_xy(uint8_t x_need,uint8_t y_need) {
-//  if (box_check = true) {
-//    if (
-//  }else {
-//    
-//  }
+  if (box_check == true) {
+    arm_set(shelf_floor);
+    
+    if (y_now < y_get_box) {
+      get_stack(y_get_box - y_now);
+      y_now = y_get_box;
+    }
+    
+    if (x_now > x_need) {
+      robot_right();
+      get_stack(x_need - x_now);
+      robot_left();
+      x_now = x_need;
+    }else if (x_now < x_need) {
+      robot_left();
+      get_stack(x_need - x_now);
+      robot_right();
+      x_now = x_need;
+    }
+
+    if (y_now < y_put_box) {
+      get_stack(y_get_box - y_now);
+      y_now = y_put_box;
+    }
+
+    if (x_now == 0) {
+      robot_left();
+      get_stack_right(shelf_stack);
+      robot_right();
+      get_stack(1);
+      put_box();
+      robot_right();
+      get_stack_left(shelf_stack);
+      robot_right();
+    }else if (x_now == 8) {
+      robot_right();
+      get_stack_left(shelf_stack);
+      robot_left();
+      get_stack(1);
+      put_box();
+      robot_left();
+      get_stack_right(shelf_stack);
+      robot_left();
+    }
+  }else {
+    if (y_now > y_get_box) {
+      get_stack(y_now - y_get_box);
+      y_now = y_get_box;
+    }
+
+    if (x_now > x_need) {
+      robot_left();
+      get_stack(x_now - x_need);
+      robot_right();
+      x_now = x_need;
+    }else if (x_now < x_need) {
+      robot_right();
+      get_stack(x_need - x_now);
+      robot_left();
+      x_now = x_need;
+    }
+
+    get_stack(1);
+    get_box();
+    y_now = 0;
+  }
 }
 
 void goto_box() {
-  success = 0;
+  box_success = 0;
   for (uint8_t g;g < 8;g++) {
     if (box_state[g] == true) {
+      box_state[g] = !box_state[g];
       x_go = 1 + g;
       y_go = 0;
       break;
     }else {
-      success++;
+      box_success++;
     }
   }
 
-  if (success == 8) {
+  if (box_success == 8) {
     goto_shelf();
+  }else {
+    goto_xy(x_go,y_go);
   }
-  goto_xy(x_go,y_go);
 }
 
 void goto_shelf() {
-  success = 0;
+  shelf_success = 0;
   for (uint8_t h;h < 8;h++) {
     if (shelf_state[h] == true) {
+      shelf_state[h] = !shelf_state[h];
+      if (h > 4) {
+        shelf_floor = 2;
+      }else {
+        shelf_floor = 1;
+      }
+      
       shelf_now = (h%4) + 1;
       if (h%4 > 1) {
         x_go = 0;
@@ -278,15 +423,16 @@ void goto_shelf() {
       }
       break;
     }else {
-      success++;
+      shelf_success++;
     }
   }
 
   //get gold box and put to end fuction
-  if (success == 8) {
-    goto_shelf();
+  if (shelf_success == 8) {
+    
+  }else {
+    goto_xy(x_go,y_go);
   }
-  goto_xy(x_go,y_go);
 }
 
 void setup() {
@@ -307,38 +453,27 @@ void setup() {
 
   pinMode(ir, INPUT);
 
-//  get_degree();  
-
   pwm.begin();
   //pwm.setOscillatorFrequency(27000000);
   pwm.setPWMFreq(50);
   Wire.setClock(400000);
-  
-//  get_stack(1);
-//  robot_left(90);
 
-//    arm_set(1);
-//    open_arm();
+
+  //get_box_1
+  arm_set(1);
+  open_arm();
+  get_stack(1);
+  robot_left();
+  get_stack(1);
+  robot_left();
+  get_stack(1);
+  get_box();
+  x_now = 1,y_now = 0;
 }
 
 void loop() {
-  String  line_statuss = "";
-  line_status += String(digitalRead(line_sensor[4]));
-  for(uint8_t e = 0;e < 4;e++) {
-    line_statuss += String(digitalRead(line_sensor[e]));
+  while (box_success != 8 && shelf_success != 8) {
+    goto_shelf();
+    goto_box();
   }
-  line_statuss += String(digitalRead(line_sensor[5]));
-  Serial.println(line_statuss);
-
-//get_stack(1);
-//robot_left();
-//get_stack(1);
-//robot_left();
-//get_stack(1);
-//get_box();
-//get_stack(4);
-//while(true) {
-//    robot_stop();
-//}
-
 }
