@@ -259,6 +259,11 @@ void open_arm() {
   pwm.setPWM(1, 0, angle(90));
 }
 
+void open_arms() {
+  pwm.setPWM(0, 0, angle(125));
+  pwm.setPWM(1, 0, angle(35));
+}
+
 void close_arm() {
   pwm.setPWM(0, 0, angle(130));
   pwm.setPWM(1, 0, angle(30));
@@ -305,8 +310,12 @@ void get_box() {
 
 void put_box() {
   robot_stop();
+  open_arms();
+  delay(500);
   robot_backward();
   get_stack_backward(1);
+  open_arm();
+  delay(500);
   box_check = false;
 }
 
