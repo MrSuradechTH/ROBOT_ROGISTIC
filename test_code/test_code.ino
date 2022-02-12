@@ -248,7 +248,7 @@ void get_out_line_forward() {
 }
 
 //arm
-uint8_t angle(uint8_t angles)
+int angle(int angles)
 { 
   int pulse_wide, analog_value;
   pulse_wide = map(angles, 0, 180, 650, 2350);
@@ -257,8 +257,8 @@ uint8_t angle(uint8_t angles)
 }
 
 void open_arm() {
-  pwm.setPWM(0, 0, angle(70));
-  pwm.setPWM(1, 0, angle(90));
+  pwm.setPWM(0, 0, angle(50));
+  pwm.setPWM(1, 0, angle(45));
 }
 
 void open_arms() {
