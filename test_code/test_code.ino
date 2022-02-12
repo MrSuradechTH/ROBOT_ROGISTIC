@@ -471,15 +471,15 @@ void setup() {
 
 
   //get_box_1
-//  arm_set(1);
-//  open_arm();
-//  get_stack(1);
-//  robot_left();
-//  get_stack(1);
-//  robot_left();
-//  get_stack(1);
-//  get_box();
-//  x_now = 1,y_now = 0;
+  arm_set(1);
+  open_arm();
+  get_stack(1);
+  robot_left();
+  get_stack(1);
+  robot_left();
+  get_stack(1);
+  get_box();
+  x_now = 1,y_now = 0;
 }
 
 void loop() {
@@ -487,7 +487,5 @@ void loop() {
 //    goto_shelf();
 //    goto_box();
 //  }
-
-  turn_around();
-//  robot_stop();
+  robot_stop();
 }
