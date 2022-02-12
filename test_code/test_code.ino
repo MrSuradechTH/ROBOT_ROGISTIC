@@ -267,8 +267,8 @@ void open_arms() {
 }
 
 void close_arm() {
-  pwm.setPWM(0, 0, angle(110));
-  pwm.setPWM(1, 0, angle(50));
+  pwm.setPWM(0, 0, angle(150));
+  pwm.setPWM(1, 0, angle(10));
 }
 
 void arm_set(uint8_t level) {
@@ -469,7 +469,7 @@ void setup() {
   pwm.setPWMFreq(50);
   Wire.setClock(400000);
 
-
+  open_arm();
   //get_box_1
 //  arm_set(1);
 //  open_arm();
