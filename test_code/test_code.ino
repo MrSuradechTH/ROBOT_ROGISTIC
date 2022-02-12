@@ -257,17 +257,17 @@ int angle(int angles)
 }
 
 void open_arm() {
-  pwm.setPWM(0, 0, angle(50));
-  pwm.setPWM(1, 0, angle(45));
+  pwm.setPWM(0, 0, angle(60));
+  pwm.setPWM(1, 0, angle(80));
 }
 
 void open_arms() {
-  pwm.setPWM(0, 0, angle(125));
-  pwm.setPWM(1, 0, angle(35));
+  pwm.setPWM(0, 0, angle(65));
+  pwm.setPWM(1, 0, angle(75));
 }
 
 void close_arm() {
-  pwm.setPWM(0, 0, angle(130));
+  pwm.setPWM(0, 0, angle(110));
   pwm.setPWM(1, 0, angle(30));
 }
 
@@ -469,27 +469,23 @@ void setup() {
   pwm.setPWMFreq(50);
   Wire.setClock(400000);
 
-//  open_arm();
   //get_box_1
+//  open_arm();
 //  arm_set(1);
 //  open_arm();
 //  get_stack(1);
 //  robot_left();
 //  get_stack(1);
 //  robot_left();
-//  get_stack(1);
-//  get_box();
-//  x_now = 1,y_now = 0;
+  get_stack(1);
+  get_box();
+  x_now = 1,y_now = 0;
 }
 
 void loop() {
-//  while (box_success != 8 && shelf_success != 8) {
-//    goto_shelf();
-//    goto_box();
-//  }
-  open_arm();
-  delay(1000);
-  close_arm();
-  delay(1000);
-//  robot_stop();
+  while (box_success != 8 && shelf_success != 8) {
+    goto_shelf();
+    goto_box();
+  }
+  robot_stop();
 }
