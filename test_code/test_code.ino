@@ -487,19 +487,7 @@ void loop() {
 //    goto_shelf();
 //    goto_box();
 //  }
-  String  line_statuss = "";
-  if (digitalRead(line_sensor[4])== 1) {
-    line_statuss = "1";
-  }else {
-    line_statuss = "0";
-  }
 
-  
-//  line_status += String(digitalRead(line_sensor[4]));
-//  for(uint8_t c = 0;c < 4;c++) {
-//    line_statuss += String(digitalRead(line_sensor[c]));
-//  }
-//  line_statuss += String(digitalRead(line_sensor[5]));
-  Serial.println(line_statuss);
+  turn_around();
 //  robot_stop();
 }
