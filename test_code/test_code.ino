@@ -469,7 +469,7 @@ void setup() {
   pwm.setPWMFreq(50);
   Wire.setClock(400000);
 
-  open_arm();
+//  open_arm();
   //get_box_1
 //  arm_set(1);
 //  open_arm();
@@ -477,15 +477,19 @@ void setup() {
 //  robot_left();
 //  get_stack(1);
 //  robot_left();
-  get_stack(1);
-  get_box();
-  x_now = 1,y_now = 0;
+//  get_stack(1);
+//  get_box();
+//  x_now = 1,y_now = 0;
 }
 
 void loop() {
-  while (box_success != 8 && shelf_success != 8) {
-    goto_shelf();
-    goto_box();
-  }
-  robot_stop();
+//  while (box_success != 8 && shelf_success != 8) {
+//    goto_shelf();
+//    goto_box();
+//  }
+  open_arm();
+  delay(5000);
+  close_arm();
+  delay(5000);
+//  robot_stop();
 }
