@@ -267,8 +267,8 @@ void open_arms() {
 }
 
 void close_arm() {
-  pwm.setPWM(0, 0, angle(150));
-  pwm.setPWM(1, 0, angle(10));
+  pwm.setPWM(0, 0, angle(130));
+  pwm.setPWM(1, 0, angle(30));
 }
 
 void arm_set(uint8_t level) {
@@ -488,8 +488,8 @@ void loop() {
 //    goto_box();
 //  }
   open_arm();
-  delay(5000);
+  delay(1000);
   close_arm();
-  delay(5000);
+  delay(1000);
 //  robot_stop();
 }
