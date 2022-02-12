@@ -278,7 +278,7 @@ void arm_set(uint8_t level) {
       while(digitalRead(lm[level - 1]) == HIGH) {
         digitalWrite(motor[2][0], 0);
         digitalWrite(motor[2][1], 1);
-        pwm.setPWM(motor[2][2], 0, 1800);
+        pwm.setPWM(motor[2][2], 0, 1200);
       }
       digitalWrite(motor[2][0], 0);
       digitalWrite(motor[2][1], 0);
@@ -288,7 +288,7 @@ void arm_set(uint8_t level) {
       while(digitalRead(lm[level - 1]) == HIGH) {
         digitalWrite(motor[2][0], 1);
         digitalWrite(motor[2][1], 0);
-        pwm.setPWM(motor[2][2], 0, 1800);
+        pwm.setPWM(motor[2][2], 0, 1200);
       }
       digitalWrite(motor[2][0], 0);
       digitalWrite(motor[2][1], 0);
@@ -476,7 +476,7 @@ void setup() {
 //  robot_left();
 //  get_stack(1);
 //  robot_left();
-  get_stack(1);
+//  get_stack(1);
   get_box();
   x_now = 1,y_now = 0;
 }
