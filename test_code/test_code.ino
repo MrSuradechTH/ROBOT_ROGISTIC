@@ -4,8 +4,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 //motor
 uint8_t motor[3][3] = {{44, 45, 8},{46, 47, 9},{48, 49, 10}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา,เซอร์โว
-uint16_t motor_speed_default[] = {300,350,450,500}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
-uint8_t speed_down[] = {100,100};
+uint16_t motor_speed_default[] = {700,750,800,850}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
+uint8_t speed_down[] = {50,50};
 
 //line
 uint8_t line_sensor[] = {22,23,24,25,26,27}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง ไล่จากซ้ายไปขวา
@@ -481,9 +481,9 @@ void setup() {
 }
 
 void loop() {
-  while (box_success != 8 && shelf_success != 8) {
-    goto_shelf();
-    goto_box();
-  }
+//  while (box_success != 8 && shelf_success != 8) {
+//    goto_shelf();
+//    goto_box();
+//  }
   robot_stop();
 }
