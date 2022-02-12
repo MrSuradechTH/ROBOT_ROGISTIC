@@ -49,7 +49,7 @@ void robot_forward() {
 }
 
 void robot_backward() {
-  
+  robot_motor(0,1,0,1,motor_speed_default[0],motor_speed_default[1],0);
 }
 
 void robot_stop() {
@@ -95,9 +95,9 @@ void turn_around() {
     robot_motor(1,0,0,0,motor_speed_default[2],motor_speed_default[3],0);
   }
   
-  robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+  
   while(digitalRead(line_sensor[1]) == LOW) {
-
+    robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
   }
 }
 
@@ -469,15 +469,15 @@ void setup() {
 
 
   //get_box_1
-  arm_set(1);
-  open_arm();
-  get_stack(1);
-  robot_left();
-  get_stack(1);
-  robot_left();
-  get_stack(1);
-  get_box();
-  x_now = 1,y_now = 0;
+//  arm_set(1);
+//  open_arm();
+//  get_stack(1);
+//  robot_left();
+//  get_stack(1);
+//  robot_left();
+//  get_stack(1);
+//  get_box();
+//  x_now = 1,y_now = 0;
 }
 
 void loop() {
@@ -485,5 +485,13 @@ void loop() {
 //    goto_shelf();
 //    goto_box();
 //  }
-  robot_stop();
+
+  String  line_statuss = "";
+  line_status += String(digitalRead(line_sensor[4]));
+  for(uint8_t c = 0;c < 4;c++) {
+    line_statuss += String(digitalRead(line_sensor[c]));
+  }
+  line_statuss += String(digitalRead(line_sensor[5]));
+  Serial.println(line_statuss);
+//  robot_stop();
 }
