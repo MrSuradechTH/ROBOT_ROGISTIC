@@ -267,8 +267,8 @@ void open_arms() {
 }
 
 void close_arm() {
-  pwm.setPWM(0, 0, angle(130));
-  pwm.setPWM(1, 0, angle(30));
+  pwm.setPWM(0, 0, angle(110));
+  pwm.setPWM(1, 0, angle(50));
 }
 
 void arm_set(uint8_t level) {
@@ -471,12 +471,12 @@ void setup() {
 
 
   //get_box_1
-  arm_set(1);
-  open_arm();
-  get_stack(1);
-  robot_left();
-  get_stack(1);
-  robot_left();
+//  arm_set(1);
+//  open_arm();
+//  get_stack(1);
+//  robot_left();
+//  get_stack(1);
+//  robot_left();
   get_stack(1);
   get_box();
   x_now = 1,y_now = 0;
