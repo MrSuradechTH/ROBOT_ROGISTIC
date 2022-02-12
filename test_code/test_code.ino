@@ -87,17 +87,19 @@ void robot_right() {
 }
 
 void turn_around() {
+  robot_motor(0,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
   while(digitalRead(line_sensor[5]) == LOW) {
-    robot_motor(0,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+    
   }
-  
+
+  robot_motor(1,0,0,0,motor_speed_default[2],motor_speed_default[3],0);
   while(digitalRead(line_sensor[4]) == LOW) {
-    robot_motor(1,0,0,0,motor_speed_default[2],motor_speed_default[3],0);
+    
   }
   
-  
+  robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
   while(digitalRead(line_sensor[1]) == LOW) {
-    robot_motor(1,0,0,1,motor_speed_default[2],motor_speed_default[3],0);
+    
   }
 }
 
