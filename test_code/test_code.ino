@@ -160,11 +160,11 @@ void balance_backward() {
     robot_backward();
   }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
     while(digitalRead(line_sensor[2]) == 0) {
-      robot_motor(0,1,0,1,0,motor_speed_default[1] + speed_down[0],0);
+      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[0],0,0);
     }
   }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
     while(digitalRead(line_sensor[1]) == 0) {
-      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[0],0,0);
+      robot_motor(0,1,0,1,0,motor_speed_default[1] + speed_down[0],0);
     }
   }else if (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 0) {
 //      robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
@@ -175,9 +175,9 @@ void balance_backward() {
   }else if (line_status == "00" || line_status == "11") {
       robot_backward();
   }else if (line_status == "10") {
-      robot_motor(0,1,0,1,motor_speed_default[0] - speed_down[0],motor_speed_default[1] + speed_down[0],0);
+      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[2],motor_speed_default[1] - speed_down[3],0);
   }else if (line_status == "01") {
-      robot_motor(0,1,0,1,motor_speed_default[0] + speed_down[0],motor_speed_default[0] - speed_down[0],0);
+      robot_motor(0,1,0,1,motor_speed_default[0] - speed_down[2],motor_speed_default[0] + speed_down[3],0);
   }
 }
 
@@ -203,7 +203,7 @@ void get_stack_backward(uint8_t stack_count) {  //only 1 stack
     balance_backward();
     if (digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
       stack++;
-      get_out_line_forward();
+      get_out_line_backward();
     }
   }
   stack = 0;
@@ -250,6 +250,12 @@ void get_out_line() {
 void get_out_line_forward() {
   while(digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
     robot_forward();
+  }
+}
+
+void get_out_line_backward() {
+  while(digitalRead(line_sensor[4]) == 1 || digitalRead(line_sensor[5]) == 1) {
+    robot_backward();
   }
 }
 
@@ -503,26 +509,20 @@ void loop() {
 //    goto_shelf();
 //    goto_box();
 //  }
-get_stack_left(6);
-robot_right();
-get_stack_right(3);
-robot_right();
-get_stack_left(2);
-get_stack_right(1);
-robot_right();
-get_stack_left(3);
-robot_right();
-while(true) {
-  robot_stop();
-}
 
+//get_stack_left(5);
+//get_stack_backward(5);
 
-//  String  line_statuss = "";
-//  line_status += String(digitalRead(line_sensor[4]));
-//  for(uint8_t c = 0;c < 4;c++) {
-//    line_statuss += String(digitalRead(line_sensor[c]));
-//  }
-//  line_statuss += String(digitalRead(line_sensor[5]));
-//  Serial.println(line_statuss);
-  
+balance_backward();
+
+//เดินวน
+//get_stack_left(5);
+//robot_right();
+//get_stack_right(3);
+//robot_right();
+//get_stack_left(2);
+//get_stack_right(1);
+//robot_right();
+//get_stack_left(3);
+//robot_right();
 }
