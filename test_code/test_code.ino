@@ -4,13 +4,13 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 //motor
 uint8_t motor[3][3] = {{44, 45, 8},{46, 47, 9},{48, 49, 10}}; // มอรเตอร์ซ้าย,มอเตอร์ขวา,เซอร์โว
-uint16_t motor_speed_default[] = {700,750,800,850}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
-uint8_t speed_down[] = {150,150,200,200};
+uint16_t motor_speed_default[] = {1000,1050,1200,1250}; //แก้ตรงนี้ให้เป็นค่าที่หุ่นเดินตรง
+uint8_t speed_down[] = {350,350,800,800};
 
 //line
 uint8_t line_sensor[] = {22,23,24,25,26,27}; //กลาง 4 ตัวแรก 2 ตัวหลังอ่านข้าง ไล่จากซ้ายไปขวา
 String line_status;
-uint8_t stack;
+uint8_t stack,stack_count;
 
 //arm
 uint8_t lm[] = {32,34,35};
@@ -78,11 +78,22 @@ void robot_lefts() {
     
     }
     delay(1000);
-    while(digitalRead(line_sensor[5]) == 0) {
+    while(digitalRead(line_sensor[2]) == 0) {
     
     }
+  }else {
     delay(1000);
-    while(digitalRead(line_sensor[5]) == 1) {
+    while(digitalRead(line_sensor[2]) == 0) {
+    
+    }
+  }
+  robot_stop();
+}
+
+void robot_leftss() {
+  robot_motor(0,1,1,0,motor_speed_default[2],motor_speed_default[3] + speed_down[2],0);
+  if (digitalRead(line_sensor[4]) == 1) {
+    while(digitalRead(line_sensor[4]) == 1) {
     
     }
     delay(1000);
@@ -90,11 +101,14 @@ void robot_lefts() {
     
     }
   }else {
-    while(digitalRead(line_sensor[5]) == 0) {
+    while(digitalRead(line_sensor[4]) == 0) {
     
     }
     delay(1000);
-    while(digitalRead(line_sensor[5]) == 1) {
+    while(digitalRead(line_sensor[4]) == 1) {
+    
+    }
+    while(digitalRead(line_sensor[2]) == 0) {
     
     }
   }
@@ -113,6 +127,50 @@ void robot_right() {
   }
 
   get_out_line();
+  robot_stop();
+}
+
+void robot_rights() {
+  robot_motor(1,0,0,1,motor_speed_default[2] + speed_down[1],motor_speed_default[3],0);
+  if (digitalRead(line_sensor[4]) == 1) {
+    while(digitalRead(line_sensor[4]) == 1) {
+    
+    }
+    delay(1000);
+    while(digitalRead(line_sensor[1]) == 0) {
+    
+    }
+  }else {
+    delay(1000);
+    while(digitalRead(line_sensor[1]) == 0) {
+    
+    }
+  }
+  robot_stop();
+}
+
+void robot_rightss() {
+  robot_motor(1,0,0,1,motor_speed_default[2] + speed_down[2],motor_speed_default[3],0);
+  if (digitalRead(line_sensor[5]) == 1) {
+    while(digitalRead(line_sensor[5]) == 1) {
+    
+    }
+    delay(1000);
+    while(digitalRead(line_sensor[1]) == 0) {
+    
+    }
+  }else {
+    while(digitalRead(line_sensor[5]) == 0) {
+    
+    }
+    delay(1000);
+    while(digitalRead(line_sensor[5]) == 1) {
+    
+    }
+    while(digitalRead(line_sensor[1]) == 0) {
+    
+    }
+  }
   robot_stop();
 }
 
@@ -156,14 +214,14 @@ void balance() {
   }else if (digitalRead(line_sensor[0]) == 1 && line_status == "00" && digitalRead(line_sensor[3]) == 0) {
     while(digitalRead(line_sensor[2]) == 0) {
       robot_motor(1,0,1,0,0,motor_speed_default[1] + speed_down[0],0);
-      if ((digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) || (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 0)) {
+      if ( (stack_count + 1 == stack) && ((digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) || (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 0))) {
         break;
       }
     }
   }else if (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 1) {
     while(digitalRead(line_sensor[1]) == 0) {
       robot_motor(1,0,1,0,motor_speed_default[0] + speed_down[0],0,0);
-      if ((digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) || (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 0)) {
+      if ( (stack_count + 1 == stack) && (digitalRead(line_sensor[0]) == 1 && line_status == "11" && digitalRead(line_sensor[3]) == 1) || (digitalRead(line_sensor[0]) == 0 && line_status == "00" && digitalRead(line_sensor[3]) == 0)) {
         break;
       }
     }
@@ -218,6 +276,7 @@ void balance() {
 //}
 
 void get_stack(uint8_t stack_count) {
+  stack_count = stack_count;
   while(stack != stack_count) {
     Serial.println(stack);
     balance();
@@ -231,9 +290,11 @@ void get_stack(uint8_t stack_count) {
     }
   }
   stack = 0;
+  robot_stop();
 }
 
 void get_stack_backward(uint8_t stack_count) {  //only 1 stack
+  stack_count = stack_count;
   while(stack != stack_count) {
 //    Serial.println(stack);
     robot_backward();
@@ -254,9 +315,11 @@ void get_stack_backward(uint8_t stack_count) {  //only 1 stack
     stack++;
   }
   stack = 0;
+  robot_stop();
 }
 
 void get_stack_left(uint8_t stack_count) {
+  stack_count = stack_count;
   while(stack != stack_count) {
 //    Serial.println(stack);
     balance();
@@ -267,9 +330,11 @@ void get_stack_left(uint8_t stack_count) {
     }
   }
   stack = 0;
+  robot_stop();
 }
 
 void get_stack_right(uint8_t stack_count) {
+  stack_count = stack_count;
   while(stack != stack_count) {
 //    Serial.println(stack);
     balance();
@@ -280,6 +345,7 @@ void get_stack_right(uint8_t stack_count) {
     }
   }
   stack = 0;
+  robot_stop();
 }
 
 void get_out_line() {
@@ -359,24 +425,22 @@ void arm_set(uint8_t level) {
 
 //box
 void get_box() {
-  robot_stop();
-  arm_set(1);
-  delay(500);
-  close_arm();
-  delay(500);
-  arm_set(3);
+//  robot_stop();
+//  arm_set(1);
+//  delay(500);
+//  close_arm();
+//  delay(500);
+//  arm_set(3);
   box_check = true;
-  turn_around(); 
 }
 
 void put_box() {
-  robot_stop();
-  open_arms();
-  delay(500);
-  robot_backward();
-  get_stack_backward(1);
-  open_arm();
-  delay(500);
+//  robot_stop();
+//  open_arms();
+//  delay(500);
+//  robot_backward();
+//  open_arm();
+//  delay(500);
   box_check = false;
 }
 
@@ -386,72 +450,85 @@ void goto_xy(uint8_t x_need,uint8_t y_need) {
     arm_set(shelf_floor);
     
     if (y_now < y_get_box) {
-      get_stack_left(y_get_box - y_now);
+      get_stack_backward(y_get_box - y_now);
       y_now = y_get_box;
     }
     
     if (x_now > x_need) {
-      robot_right();
+      robot_left();
       get_stack_left(x_need - x_now);
       robot_left();
       x_now = x_need;
     }else if (x_now < x_need) {
-      robot_left();
+      robot_right();
       get_stack_left(x_need - x_now);
       robot_right();
       x_now = x_need;
     }
 
     if (y_now < y_put_box && x_now == x_min) {
-      get_stack_left(y_get_box - y_now);
+      get_stack_left(y_put_box - y_now);
       y_now = y_put_box;
     }else if (y_now < y_put_box && x_now == x_max) {
-      get_stack_right(y_get_box - y_now);
+      get_stack_right(y_put_box - y_now);
       y_now = y_put_box;
     }
 
     if (x_now == x_min) {
       robot_left();
       get_stack_right(shelf_stack);
-      robot_right();
-      get_stack(1);
-      put_box();
+      robot_rightss();
     }else if (x_now == x_max) {
       robot_right();
       get_stack_left(shelf_stack);
-      robot_left();
-      get_stack(1);
-      put_box();
+      robot_leftss();
     }
+//      get_stack(1);
+      put_box();
   }else {
-    while (true) {
-      robot_stop();
+    robot_stop();
+    while(digitalRead(32) == HIGH) {
+      
+    }
+
+    get_stack_backward(1);
+    if (x_now == x_min) {
+      robot_rights();
+      get_stack_left(shelf_stack);
+      robot_right();
+    }else if (x_now == x_max) {
+      robot_lefts();
+      get_stack_right(shelf_stack);
+      robot_left();
     }
     
 //    if (x_need < 5) {
 //      shelf_stack - 1
 //    }
-//    
-//    if (y_now > y_get_box) {
-//      get_stack(y_now - y_get_box);
-//      y_now = y_get_box;
-//    }
-//
-//    if (x_now > x_need) {
-//      robot_left();
-//      get_stack(x_now - x_need);
-//      robot_right();
-//      x_now = x_need;
-//    }else if (x_now < x_need) {
-//      robot_right();
-//      get_stack(x_need - x_now);
-//      robot_left();
-//      x_now = x_need;
-//    }
-//
-//    get_stack(1);
-//    get_box();
-//    y_now = 0;
+    
+    if (y_now > y_get_box && x_now == x_min) {
+      get_stack_right(y_now - y_get_box);
+      y_now = y_get_box;
+    }else if (y_now > y_get_box && x_now == x_max) {
+      get_stack_left(y_now - y_get_box);
+      y_now = y_get_box;
+    }
+
+    if (x_now > x_need) {
+      robot_left();
+      get_stack_left(x_now - x_need);
+      robot_rights();
+      x_now = x_need;
+    }else if (x_now < x_need) {
+      robot_right();
+      get_stack_left(x_need - x_now);
+      robot_lefts();
+      x_now = x_need;
+    }
+
+    get_stack(1);
+    get_box();
+    y_now = 0;
   }
 }
 
@@ -459,7 +536,7 @@ void goto_box() {
   box_success = 0;
   for (uint8_t g;g < 8;g++) {
     if (box_state[g] == true) {
-      box_state[g] = !box_state[g];
+      box_state[g] = false;
       x_go = 1 + g;
       y_go = 0;
       break;
@@ -479,7 +556,7 @@ void goto_shelf() {
   shelf_success = 0;
   for (uint8_t h;h < 8;h++) {
     if (shelf_state[h] == true) {
-      shelf_state[h] = !shelf_state[h];
+      shelf_state[h] = false;
       if (h > 4) {
         shelf_floor = 2;
       }else {
@@ -540,27 +617,32 @@ void setup() {
 //  robot_left();
 //  get_stack_left(1);
 //  robot_left();
-//  get_stack_left(1);
-////  get_box();
+//  get_stack_right(1);
+  get_box();
 
 
-get_stack_backward(1);
-robot_stop();
-delay(1000);
-robot_lefts();
-delay(1000);
-get_stack_right(2);
-
-
-//  box_check = true;
-//  x_now = 1,y_now = 0;
+//get_stack_backward(1);
+//robot_stop();
+//delay(1000);
+//robot_lefts();
+//delay(1000);
+//get_stack_right(1);
+//robot_left();
+//get_stack_left(1);
+//robot_left();
+//get_stack_left(1);
+  x_now = 1,y_now = 0;
+  box_state[0] = true;
 }
 
 void loop() {
-//  while (box_success != 8 && shelf_success != 8) {
-//    goto_shelf();
-//    goto_box();
-//  }
+  while (box_success != 8 && shelf_success != 8) {
+    goto_shelf();
+    goto_box();
+  }
+
+//  get_stack_left(1);
+//  robot_leftss();
 
 //เดินวน
 //get_stack_left(1);
